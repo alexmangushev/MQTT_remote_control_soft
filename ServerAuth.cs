@@ -10,11 +10,14 @@ using System.Text;
 
 namespace mqtt_remote_server
 {
+    // When server processes MQTT transaction he need to use api to work with database
+    // For it he need JWT token
+    // This class need for control this process
     public class ServerAuth
     {
         static string serverToken;
 
-        public async Task<string> ReturnToken()
+        public async Task<string> ReturnToken() // return token
         {
             bool check = await CheckToken();
             if (check)
@@ -26,10 +29,10 @@ namespace mqtt_remote_server
                 GetToken();
                 return serverToken;
             }
-            
+
         }
 
-        private async Task <bool> CheckToken()
+        private async Task<bool> CheckToken() // Check token for valid
         {
             HttpClient httpClient = new()
             {
@@ -44,7 +47,7 @@ namespace mqtt_remote_server
 
         }
 
-        public async void GetToken()
+        public async void GetToken() // Generate new token
         {
             serverToken = new JwtSecurityTokenHandler().WriteToken(
             new JwtSecurityToken(

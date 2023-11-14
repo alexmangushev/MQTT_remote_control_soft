@@ -81,7 +81,7 @@ namespace mqtt_remote_server
                 // Callback function when a message is received
                 client.ApplicationMessageReceivedAsync += async e =>
                 {
-                    // {"temp":25,"humidity":54,"power":false,"people":false,"smoke":true, "deviceId":0}
+                    // {"Temp":25,"Humidity":54,"Power":false,"People":false,"Smoke":true, "DeviceId":0}
                     string data_str = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
 
                     Console.WriteLine($"Received message: {data_str}");

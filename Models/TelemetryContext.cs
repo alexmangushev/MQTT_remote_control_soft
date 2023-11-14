@@ -76,10 +76,10 @@ public partial class TelemetryContext : DbContext
             entity.Property(e => e.Smoke).HasColumnName("smoke");
             entity.Property(e => e.Temp).HasColumnName("temp");
 
-            entity.HasOne(d => d.Device).WithMany(p => p.Data)
+            /*entity.HasOne(d => d.Device).WithMany(p => p.Data)
                 .HasForeignKey(d => d.DeviceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("device_id_pkey");
+                .HasConstraintName("device_id_pkey");*/
         });
 
         modelBuilder.Entity<Device>(entity =>
