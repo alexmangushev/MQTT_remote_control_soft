@@ -20,6 +20,10 @@
                      Width="100" Height="30" Margin="10" 
                     Click="ButtonDeleteClick"></Button>
 
+            <Button x:Name="ButtonSend" Content="Отправить файл"
+                     Width="100" Height="30" Margin="10" 
+                    Click="ButtonSendClick"></Button>
+
         </StackPanel>
 
         <!-- *********** table *********** -->

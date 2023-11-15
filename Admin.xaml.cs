@@ -17,6 +17,9 @@ using System.Text.Json;
 using Newtonsoft.Json;
 using System.Net.Http.Json;
 using Newtonsoft.Json.Linq;
+using Microsoft.Win32;
+using System.IO;
+using System.Net;
 
 namespace mqtt_client
 {
@@ -26,16 +29,11 @@ namespace mqtt_client
     public partial class Admin : Window
     {
         List<UserFromDB>? userFromDBs;
-        static string? JWTToken;
-        static HttpClient httpClient = new()
-        {
-            BaseAddress = new Uri("http://localhost:5240/"),
-        };
+        private readonly ServerRequests serverRequest;
 
         public Admin(string token)
         {
-            JWTToken = token;
-            httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
+            serverRequest = new ServerRequests(token);
             InitializeComponent();
             SyncTable();
         }
@@ -43,9 +41,7 @@ namespace mqtt_client
 
         public async void SyncTable()
         {
-            using HttpResponseMessage response = await httpClient.GetAsync("api/Users");
-
-            string? jsonResponse = await response.Content.ReadAsStringAsync();
+            (string? jsonResponse, HttpStatusCode httpStatusCode) = await serverRequest.GetUsers();
 
             userFromDBs = JsonConvert.DeserializeObject<List<UserFromDB>>(jsonResponse);
 
@@ -56,12 +52,9 @@ namespace mqtt_client
         {
             UserFromDB userDelete = (UserFromDB)DBGrid.SelectedItem;
 
-            using HttpResponseMessage response = await httpClient.DeleteAsync(
-                   String.Format("api/Users/{0}", userDelete.UserId));
+            (string? jsonResponse, HttpStatusCode httpStatusCode) = await serverRequest.DeleteUser(userDelete);
 
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
+            if (httpStatusCode != HttpStatusCode.NoContent)
                 MessageBox.Show(jsonResponse, "Ошибка сохранения", MessageBoxButton.OK, MessageBoxImage.Error);
             else
                 userFromDBs.Remove(userDelete);
@@ -69,19 +62,51 @@ namespace mqtt_client
             SyncTable();
         }
 
+        private async void ButtonSendClick(object sender, RoutedEventArgs e)
+        {
+            // Open dialog
+            var dialog = new OpenFileDialog()
+            {
+                Title = "Выберите файл",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal),
+                Multiselect = false,
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*"
+            };
+
+            // Get filename
+            string fileName = "";
+            if (dialog.ShowDialog() == true)
+            {
+                fileName = dialog.FileName;
+            }
+
+            if (fileName.Length > 0)
+            {
+                // Open the file to read from.
+                string readText = File.ReadAllText(fileName);
+
+                FileBody file = new();
+                file.Data = readText;
+
+                // Send text to server
+                HttpStatusCode statusCode = await serverRequest.SendFile(file);
+                if (statusCode == HttpStatusCode.OK) 
+                {
+                    MessageBox.Show("Файл отправлен", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось отправить файл", "Ошибка отправки", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
+        }
+
         private async void CreateDB(UserFromDB UserFromDB)
         {
-            using StringContent jsonContent = new(
-                    JsonConvert.SerializeObject(UserFromDB),
-                    Encoding.UTF8,
-                    "application/json");
+            (string? jsonResponse, HttpStatusCode httpStatusCode) = await serverRequest.AddUser(UserFromDB);
 
-            using HttpResponseMessage response = await httpClient.PostAsync(
-                String.Format("api/Users"), jsonContent);
-
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
+            if (httpStatusCode != HttpStatusCode.Created)
                 MessageBox.Show(jsonResponse, "Ошибка сохранения", MessageBoxButton.OK, MessageBoxImage.Error);
 
             SyncTable();
@@ -91,20 +116,12 @@ namespace mqtt_client
         {
             UserFromDB userUpdate = e.Row.Item as UserFromDB; //userFromDBs[DBGrid.SelectedIndex];
 
-            using StringContent jsonContent = new(
-                    JsonConvert.SerializeObject(userUpdate),
-                    Encoding.UTF8,
-                    "application/json");
-
-            using HttpResponseMessage response = await httpClient.PutAsync(
-                String.Format("api/Users/{0}", userUpdate.UserId), jsonContent);
-
-            var jsonResponse = await response.Content.ReadAsStringAsync();
+            (string? jsonResponse, HttpStatusCode httpStatusCode) = await serverRequest.ModifyUser(userUpdate);
 
 
-            if (!response.IsSuccessStatusCode && response.StatusCode != System.Net.HttpStatusCode.NotFound)
+            if (httpStatusCode != System.Net.HttpStatusCode.NotFound && httpStatusCode != HttpStatusCode.NoContent)
                 MessageBox.Show(jsonResponse, "Ошибка редактирования", MessageBoxButton.OK, MessageBoxImage.Error);
-            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            else if (httpStatusCode == HttpStatusCode.NotFound)
                 CreateDB(userUpdate);
 
             SyncTable();

@@ -40,7 +40,7 @@ namespace mqtt_client
 
             try
             {
-                AuthAnswer authAnswer = await ServerRequests.AuthorizeUser(Login, Password);
+                AuthAnswer authAnswer = await new ServerRequests().AuthorizeUser(Login, Password);
 
                 // Transition to new Window
                 if (authAnswer.IsAuth == false)

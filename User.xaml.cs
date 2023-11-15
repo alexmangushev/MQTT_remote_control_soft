@@ -24,12 +24,10 @@ namespace mqtt_client
     /// </summary>
     public partial class User : Window
     {
-        //static string? JWTToken;
         private readonly Statistics statisctics;
         private readonly ServerRequests serverRequest;
         public User(string token)
         {
-            //JWTToken = token;
             statisctics = new Statistics();
             serverRequest = new ServerRequests(token);
             InitializeComponent();
@@ -74,7 +72,7 @@ namespace mqtt_client
                     RequestData date = new RequestData();
                     date.Start = startDate; date.End = endDate;
 
-                    (string? jsonResponse, HttpStatusCode httpStatusCode) = await ServerRequests.GetData(date, "api/Data/for_user");
+                    (string? jsonResponse, HttpStatusCode httpStatusCode) = await serverRequest.GetData(date, "api/Data/for_user");
 
                     List<Datum> listData = JsonConvert.DeserializeObject<List<Datum>>(jsonResponse);
                     statisctics._listData = listData;

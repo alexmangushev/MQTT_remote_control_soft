@@ -47,7 +47,7 @@ namespace mqtt_client
 
             try
             {
-                (string? jsonResponse, HttpStatusCode httpStatusCode) = await ServerRequests.RegisterUser(Login, Password);
+                (string? jsonResponse, HttpStatusCode httpStatusCode) = await new ServerRequests().RegisterUser(Login, Password);
 
                 if (httpStatusCode != HttpStatusCode.Created)
                 { 
