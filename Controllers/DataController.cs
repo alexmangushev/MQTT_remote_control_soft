@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +27,7 @@ namespace mqtt_remote_server.Controllers
             _context = context;
         }
 
-        // GET: api/Data/for_user
+        // POST: api/Data/for_user
         // Self write
         [HttpPost("for_user")]
         [Authorize]
@@ -41,7 +42,7 @@ namespace mqtt_remote_server.Controllers
                 // Get list of user's devices
                 List<User> user = _context.Users.Where(r => r.Login == login).ToList();
                 int? userid = user[0].UserId;
-                List<DeviceToUser> devtouser = _context.DeviceToUsers.Where(r => r.UserId == userid).ToList();
+                List<DeviceToUser> devtouser = _context.DeviceToUsers.Include(x => x.User).Where(r => r.UserId == userid).ToList();
 
                 // return list of data beetween date.Start and date.End for all devices of this user
                 return _context.Data.Where(r => r.GetTime > date.Start && r.GetTime < date.End && r.DeviceId == devtouser[0].DeviceId).ToImmutableList();
@@ -51,10 +52,27 @@ namespace mqtt_remote_server.Controllers
             return NoContent();
         }
 
+        // POST: api/Data/file
+        // Self write
+        [HttpPost("file")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<Datum>>> GetFile(FileBody file)
+        {
+            // Send file to handler 
+            // Do RPC to RabbitMQ
+            using var rpcClient = new RpcClient("FTPQueue");
+            string response = rpcClient.CallAsync(file);
+
+            if (response == "Ok")
+                return Ok();
+            else
+                return BadRequest();
+        }
+
         // GET: api/Data/login
         // Self write
         // Get requests for authorization
-        [HttpPost("login")]
+        [HttpPost("login")] 
         public async Task<string> GetToken(UserAuth a)
         {
             string username = a.Login;
@@ -227,5 +245,11 @@ namespace mqtt_remote_server.Controllers
         public string Login { get; set; } = null!;
 
         public string Password { get; set; } = null!;
+    }
+
+    // Class for getting file from user
+    public class FileBody
+    {
+        public string? Data { get; set; } = null!;
     }
 }

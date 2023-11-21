@@ -27,11 +27,17 @@ public partial class TelemetryContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    static private StreamReader strReader = new StreamReader("ConnectionDataBase.txt"); // get Reader
+    static private StreamReader strReader = new StreamReader("C:\\Users\\alexandr\\source\\repos\\mqtt_remote_server\\bin\\Debug\\net7.0\\ConnectionDataBase.txt"); // get Reader
     static string conn = strReader.ReadLine();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql(conn);
+    {
+        if (!optionsBuilder.IsConfigured) 
+        {
+            optionsBuilder.UseNpgsql(conn);
+        }
+    }
+        //=> optionsBuilder.UseNpgsql(conn);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
