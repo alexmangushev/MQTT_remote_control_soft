@@ -41,5 +41,41 @@ namespace mqtt_client
             return _listData.Max(r => r.Humidity);
         }
 
+        public (List<double>, List<DateTime>) DataForPlot(string dataType)
+        {
+            List<double> values = new List<double>();
+            List<DateTime> dates = new List<DateTime>();
+
+            foreach (var i in _listData)
+            {
+                dates.Add(i.GetTime);
+
+                switch (dataType)
+                {
+                    case "Температура":
+                        values.Add(i.Temp);
+                        break;
+
+                    case "Влажность":
+                        values.Add(i.Humidity);
+                        break;
+
+                    case "Наличие питания":
+                        values.Add(i.Power ? 1 : 0);
+                        break;
+
+                    case "Наличие людей":
+                        values.Add(i.People ? 1 : 0);
+                        break;
+
+                    case "Наличие дыма":
+                        values.Add(i.Smoke ? 1 : 0);
+                        break;
+                }
+            }
+
+            return (values, dates);
+            
+        }
     }
 }

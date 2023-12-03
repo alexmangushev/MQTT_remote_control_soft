@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ScottPlot;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -76,6 +77,7 @@ namespace mqtt_client
 
                     List<Datum> listData = JsonConvert.DeserializeObject<List<Datum>>(jsonResponse);
                     statisctics._listData = listData;
+                    //printGraph();
                     SyncTable();
                 }
                 else
@@ -88,6 +90,25 @@ namespace mqtt_client
                 MessageBox.Show(ex.Message, "Ошибка запроса", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             
+        }
+
+        private void DataComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            List<double> values = new List<double>();
+            List<DateTime> dates = new List<DateTime>();
+
+            (values, dates) = statisctics.DataForPlot(((TextBlock)dataComboBox.SelectedItem).Text);
+
+            // use LINQ and DateTime.ToOADate() to convert DateTime[] to double[]
+            double[] xs = dates.Select(x => x.ToOADate()).ToArray();
+
+            plot.Plot.Clear();
+            plot.Plot.AddScatter(xs, values.ToArray());
+
+            // indicate the horizontal axis tick labels should display DateTime units
+            plot.Plot.XAxis.DateTimeFormat(true);
+
+            plot.Refresh();
         }
     }
 
