@@ -80,7 +80,6 @@ namespace mqtt_remote_server
     {   
         private readonly IConnection connection;
         private readonly IModel channel;
-        private readonly ConcurrentDictionary<string, TaskCompletionSource<string>> callbackMapper = new();
 
         public RpcServer(string queueName)
         {

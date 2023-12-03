@@ -53,7 +53,7 @@ namespace mqtt_remote_server
         public async Task Connect()
         {
             mqttClientOptions = new MqttClientOptionsBuilder()
-                .WithTcpServer(Broker, 1883)
+                .WithTcpServer(Broker, Port)
                 .WithKeepAlivePeriod(keepAlive)
                 .WithCleanSession()
                 .Build();
@@ -81,34 +81,7 @@ namespace mqtt_remote_server
                 // Callback function when a message is received
                 client.ApplicationMessageReceivedAsync += async e =>
                 {
-                    // {"Temp":25,"Humidity":54,"Power":false,"People":false,"Smoke":true, "DeviceId":0}
-                    string data_str = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
-
-                    Console.WriteLine($"Received message: {data_str}");
-                    Datum mQTTData = JsonConvert.DeserializeObject<Datum>(data_str);
-
-                    mQTTData.GetTime = DateTime.Now;
-
-                    using StringContent jsonContent = new(
-                        JsonConvert.SerializeObject(mQTTData),
-                        Encoding.UTF8,
-                        "application/json");
-
-                    HttpClient httpClient = new()
-                    {
-                        BaseAddress = new Uri("http://localhost:5240/"),
-                    };
-
-                    ServerAuth serverAuth = new();
-
-                    string token = await serverAuth.ReturnToken();
-
-                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
-
-                    using HttpResponseMessage response = await httpClient.PostAsync(
-                        String.Format("api/Data"), jsonContent);
-
-                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    CallbackMessageReceived(e);
                 };
             }
             else
@@ -122,17 +95,36 @@ namespace mqtt_remote_server
             await client.UnsubscribeAsync(Topic);
         }
 
-        /*public async Task SendMessage(string msg)
+        public async void CallbackMessageReceived(MqttApplicationMessageReceivedEventArgs e)
         {
-            var message = new MqttApplicationMessageBuilder()
-                    .WithTopic(Topic)
-                    .WithPayload(msg)
-                    .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
-                    .WithRetainFlag()
-                    .Build();
+            // {"Temp":25,"Humidity":54,"Power":false,"People":false,"Smoke":true, "DeviceId":0}
+            string data_str = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
 
-            await client.PublishAsync(message);
-            await Task.Delay(1000); // Wait for 1 second
-        }*/
+            Console.WriteLine($"Received message: {data_str}");
+            Datum mQTTData = JsonConvert.DeserializeObject<Datum>(data_str);
+
+            mQTTData.GetTime = DateTime.Now;
+
+            using StringContent jsonContent = new(
+                JsonConvert.SerializeObject(mQTTData),
+                Encoding.UTF8,
+                "application/json");
+
+            HttpClient httpClient = new()
+            {
+                BaseAddress = new Uri("http://localhost:5240/"),
+            };
+
+            ServerAuth serverAuth = new();
+
+            string token = await serverAuth.ReturnToken();
+
+            httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
+
+            using HttpResponseMessage response = await httpClient.PostAsync(
+                String.Format("api/Data"), jsonContent);
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+        }
     }
 }

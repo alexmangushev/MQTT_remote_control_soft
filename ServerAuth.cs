@@ -13,7 +13,7 @@ namespace mqtt_remote_server
     // When server processes MQTT transaction he need to use api to work with database
     // For it he need JWT token
     // This class need for control this process
-    public class ServerAuth
+    public class ServerAuth : AuthOptions
     {
         static string serverToken;
 
@@ -51,11 +51,11 @@ namespace mqtt_remote_server
         {
             serverToken = new JwtSecurityTokenHandler().WriteToken(
             new JwtSecurityToken(
-                    issuer: AuthOptions.ISSUER,
-                    audience: AuthOptions.AUDIENCE,
+                    issuer: ISSUER,
+                    audience: AUDIENCE,
                     claims: new List<Claim> { new Claim(ClaimTypes.Name, "Server") },
                     expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(15)),
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256))
+                    signingCredentials: new SigningCredentials(GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256))
             );
         }
     }
