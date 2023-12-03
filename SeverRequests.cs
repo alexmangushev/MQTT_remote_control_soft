@@ -8,10 +8,12 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using System.Windows;
 using System.Net;
+using Newtonsoft.Json.Linq;
+using System.Security.Policy;
 
 namespace mqtt_client
 {
-    public class ServerRequests
+    public class ServerRequests : IDoRequests
     {
         private string url = "http://localhost:5240/";
         string? JWTToken;
@@ -104,7 +106,7 @@ namespace mqtt_client
             }
         }
 
-        private async Task<(string, HttpStatusCode)> DoPost<T>(T obj, string path, bool isAuth)
+        public async Task<(string, HttpStatusCode)> DoPost<T>(T obj, string path, bool isAuth)
         {
             HttpClient httpClient = new()
             {
@@ -126,7 +128,7 @@ namespace mqtt_client
             return (jsonResponse, response.StatusCode);
         }
 
-        private async Task<(string, HttpStatusCode)> DoGet(string path, bool isAuth)
+        public async Task<(string, HttpStatusCode)> DoGet(string path, bool isAuth)
         {
             HttpClient httpClient = new()
             {
@@ -143,7 +145,7 @@ namespace mqtt_client
             return (jsonResponse, response.StatusCode);
         }
 
-        private async Task<(string, HttpStatusCode)> DoDelete(string obj, bool isAuth)
+        public async Task<(string, HttpStatusCode)> DoDelete(string obj, bool isAuth)
         {
             HttpClient httpClient = new()
             {
@@ -160,7 +162,7 @@ namespace mqtt_client
             return (jsonResponse, response.StatusCode);
         }
 
-        private async Task<(string, HttpStatusCode)> DoPut<T>(T obj, string path, bool isAuth)
+        public async Task<(string, HttpStatusCode)> DoPut<T>(T obj, string path, bool isAuth)
         {
             HttpClient httpClient = new()
             {
@@ -199,5 +201,13 @@ namespace mqtt_client
             }
             return builder.ToString();
         }
+    }
+
+    public interface IDoRequests
+    {
+        public Task<(string, HttpStatusCode)> DoPost<T>(T obj, string path, bool isAuth);
+        public Task<(string, HttpStatusCode)> DoGet(string path, bool isAuth);
+        public Task<(string, HttpStatusCode)> DoDelete(string obj, bool isAuth);
+        public Task<(string, HttpStatusCode)> DoPut<T>(T obj, string path, bool isAuth);
     }
 }
