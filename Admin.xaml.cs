@@ -83,7 +83,11 @@ namespace mqtt_client
             if (fileName.Length > 0)
             {
                 // Open the file to read from.
-                string readText = File.ReadAllText(fileName);
+                FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                byte[] filebytes = new byte[fs.Length];
+                fs.Read(filebytes, 0, Convert.ToInt32(fs.Length));
+                string readText = Convert.ToBase64String(filebytes,
+                                      Base64FormattingOptions.InsertLineBreaks);
 
                 FileBody file = new();
                 file.Data = readText;
