@@ -31,7 +31,7 @@ namespace mqtt_remote_server.Controllers
         // Self write
         [HttpPost("for_user")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Datum>>> GetData(RequestData date)
+        public async Task<ActionResult<IEnumerable<Datum>>> GetData(RequestDate date)
         {
             var principal = HttpContext.User;
             if (principal?.Claims != null)
@@ -222,7 +222,7 @@ namespace mqtt_remote_server.Controllers
     }
 
     // Class for getting information from user during data request
-    public class RequestData
+    public class RequestDate
     {
         public DateTime? Start { get; set; } = null!;
 
