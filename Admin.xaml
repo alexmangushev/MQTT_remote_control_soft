@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:mqtt_client"
         mc:Ignorable="d"
-        Closing="DataWindow_Closing" 
         Title="Admin" Height="450" Width="800">
+    <!--="DataWindow_Closing"-->
     <Grid x:Name="layoutGrid">
         
         <Grid.RowDefinitions>

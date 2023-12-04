@@ -13,13 +13,103 @@ using System.Security.Policy;
 
 namespace mqtt_client
 {
-    public class ServerRequests : IDoRequests
+    public class ServerRequests : AbstractRequests
     {
-        private string url = "http://localhost:5240/";
-        string? JWTToken;
-
         public ServerRequests(string token) { JWTToken = token; }
         public ServerRequests() { JWTToken = ""; }
+
+        public override async Task<(string, HttpStatusCode)> DoPost<T>(T obj, string path, bool isAuth)
+        {
+            HttpClient httpClient = new()
+            {
+                BaseAddress = new Uri(url)
+            };
+
+            if (isAuth) { httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + JWTToken); }
+
+            using StringContent jsonContent = new(
+                JsonConvert.SerializeObject(obj),
+                Encoding.UTF8,
+                "application/json");
+
+            using HttpResponseMessage response = await httpClient.PostAsync(
+                String.Format(path), jsonContent);
+
+            string? jsonResponse = await response.Content.ReadAsStringAsync();
+
+            return (jsonResponse, response.StatusCode);
+        }
+
+        public override async Task<(string, HttpStatusCode)> DoGet(string path, bool isAuth)
+        {
+            HttpClient httpClient = new()
+            {
+                BaseAddress = new Uri(url)
+            };
+
+            if (isAuth) { httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + JWTToken); }
+
+
+            using HttpResponseMessage response = await httpClient.GetAsync(path);
+
+            string? jsonResponse = await response.Content.ReadAsStringAsync();
+
+            return (jsonResponse, response.StatusCode);
+        }
+
+        public override async Task<(string, HttpStatusCode)> DoDelete(string obj, bool isAuth)
+        {
+            HttpClient httpClient = new()
+            {
+                BaseAddress = new Uri(url)
+            };
+
+            if (isAuth) { httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + JWTToken); }
+
+            
+            using HttpResponseMessage response = await httpClient.DeleteAsync(obj);
+
+            string? jsonResponse = await response.Content.ReadAsStringAsync();
+
+            return (jsonResponse, response.StatusCode);
+        }
+
+        public override async Task<(string, HttpStatusCode)> DoPut<T>(T obj, string path, bool isAuth)
+        {
+            HttpClient httpClient = new()
+            {
+                BaseAddress = new Uri(url)
+            };
+
+            if (isAuth) { httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + JWTToken); }
+
+            using StringContent jsonContent = new(
+                JsonConvert.SerializeObject(obj),
+                Encoding.UTF8,
+                "application/json");
+
+            using HttpResponseMessage response = await httpClient.PutAsync(
+                String.Format(path), jsonContent);
+
+            string? jsonResponse = await response.Content.ReadAsStringAsync();
+
+            return (jsonResponse, response.StatusCode);
+
+        }
+
+        
+    }
+
+    public abstract class AbstractRequests
+    {
+        public abstract Task<(string, HttpStatusCode)> DoPost<T>(T obj, string path, bool isAuth);
+        public abstract Task<(string, HttpStatusCode)> DoGet(string path, bool isAuth);
+        public abstract Task<(string, HttpStatusCode)> DoDelete(string obj, bool isAuth);
+        public abstract Task<(string, HttpStatusCode)> DoPut<T>(T obj, string path, bool isAuth);
+
+        protected string url = "http://localhost:5240/";
+        protected string? JWTToken;
+
         public async Task<(string?, HttpStatusCode)> RegisterUser(string login, string password)
         {
 
@@ -68,7 +158,7 @@ namespace mqtt_client
 
         public async Task<(string?, HttpStatusCode)> DeleteUser(UserFromDB user)
         {
-            
+
             // Try to delete user
             (string? jsonResponse, HttpStatusCode httpStatusCode) = await DoDelete(String.Format("api/Users/{0}", user.UserId), true);
 
@@ -84,7 +174,7 @@ namespace mqtt_client
         }
 
         // Return Token
-        public async Task<AuthAnswer> AuthorizeUser(string login, string password) 
+        public async Task<AuthAnswer> AuthorizeUser(string login, string password)
         {
 
             // Create User
@@ -106,85 +196,6 @@ namespace mqtt_client
             }
         }
 
-        public async Task<(string, HttpStatusCode)> DoPost<T>(T obj, string path, bool isAuth)
-        {
-            HttpClient httpClient = new()
-            {
-                BaseAddress = new Uri(url)
-            };
-
-            if (isAuth) { httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + JWTToken); }
-
-            using StringContent jsonContent = new(
-                JsonConvert.SerializeObject(obj),
-                Encoding.UTF8,
-                "application/json");
-
-            using HttpResponseMessage response = await httpClient.PostAsync(
-                String.Format(path), jsonContent);
-
-            string? jsonResponse = await response.Content.ReadAsStringAsync();
-
-            return (jsonResponse, response.StatusCode);
-        }
-
-        public async Task<(string, HttpStatusCode)> DoGet(string path, bool isAuth)
-        {
-            HttpClient httpClient = new()
-            {
-                BaseAddress = new Uri(url)
-            };
-
-            if (isAuth) { httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + JWTToken); }
-
-
-            using HttpResponseMessage response = await httpClient.GetAsync(path);
-
-            string? jsonResponse = await response.Content.ReadAsStringAsync();
-
-            return (jsonResponse, response.StatusCode);
-        }
-
-        public async Task<(string, HttpStatusCode)> DoDelete(string obj, bool isAuth)
-        {
-            HttpClient httpClient = new()
-            {
-                BaseAddress = new Uri(url)
-            };
-
-            if (isAuth) { httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + JWTToken); }
-
-            
-            using HttpResponseMessage response = await httpClient.DeleteAsync(obj);
-
-            string? jsonResponse = await response.Content.ReadAsStringAsync();
-
-            return (jsonResponse, response.StatusCode);
-        }
-
-        public async Task<(string, HttpStatusCode)> DoPut<T>(T obj, string path, bool isAuth)
-        {
-            HttpClient httpClient = new()
-            {
-                BaseAddress = new Uri(url)
-            };
-
-            if (isAuth) { httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + JWTToken); }
-
-            using StringContent jsonContent = new(
-                JsonConvert.SerializeObject(obj),
-                Encoding.UTF8,
-                "application/json");
-
-            using HttpResponseMessage response = await httpClient.PutAsync(
-                String.Format(path), jsonContent);
-
-            string? jsonResponse = await response.Content.ReadAsStringAsync();
-
-            return (jsonResponse, response.StatusCode);
-
-        }
-
         private string GetHash(string password)
         {
             // Create a SHA256
@@ -201,13 +212,6 @@ namespace mqtt_client
             }
             return builder.ToString();
         }
-    }
 
-    public interface IDoRequests
-    {
-        public Task<(string, HttpStatusCode)> DoPost<T>(T obj, string path, bool isAuth);
-        public Task<(string, HttpStatusCode)> DoGet(string path, bool isAuth);
-        public Task<(string, HttpStatusCode)> DoDelete(string obj, bool isAuth);
-        public Task<(string, HttpStatusCode)> DoPut<T>(T obj, string path, bool isAuth);
     }
 }
