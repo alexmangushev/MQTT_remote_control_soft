@@ -15,6 +15,18 @@ namespace mqtt_remote_server
     // This class need for control this process
     public class ServerAuth : AuthOptions
     {
+        private static ServerAuth instance;
+
+        private ServerAuth()
+        { }
+
+        public static ServerAuth getInstance()
+        {
+            if (instance == null)
+                instance = new ServerAuth();
+            return instance;
+        }
+
         static string serverToken;
 
         public async Task<string> ReturnToken() // return token

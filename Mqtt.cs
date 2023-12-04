@@ -115,7 +115,7 @@ namespace mqtt_remote_server
                 BaseAddress = new Uri("http://localhost:5240/"),
             };
 
-            ServerAuth serverAuth = new();
+            ServerAuth serverAuth = ServerAuth.getInstance();
 
             string token = await serverAuth.ReturnToken();
 
