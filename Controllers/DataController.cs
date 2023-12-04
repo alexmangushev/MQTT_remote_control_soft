@@ -27,6 +27,34 @@ namespace mqtt_remote_server.Controllers
             _context = context;
         }
 
+        // GET: api/Data/users_device
+        // Self write
+        [HttpGet("users_device")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<Device>>> GetUsersDevice()
+        {
+            var principal = HttpContext.User;
+            if (principal?.Claims != null)
+            {
+                var claim = principal.Claims.FirstOrDefault();
+                string login = claim.Value; // get user's login from jwt token
+
+                // Get list of user's devices
+                List<User> user = _context.Users.Where(r => r.Login == login).ToList();
+                List<DeviceToUser> devtouser = _context.DeviceToUsers.Include(x => x.Device).Where(r => r.UserId == user[0].UserId).ToList();
+
+                List<Device> Device = new ();
+                foreach (var i in devtouser)
+                {
+                    Device.Add(i.Device);
+                }
+                //return list of user's devices
+                return Device.ToImmutableList();
+            }
+
+            return NoContent();
+        }
+
         // POST: api/Data/for_user
         // Self write
         [HttpPost("for_user")]

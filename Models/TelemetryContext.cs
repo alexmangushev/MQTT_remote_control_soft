@@ -121,10 +121,10 @@ public partial class TelemetryContext : DbContext
                 .HasColumnType("character varying")
                 .HasColumnName("info");
 
-            entity.HasOne(d => d.Device).WithMany(p => p.DeviceToUsers)
-                .HasForeignKey(d => d.DeviceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("device_id_fkey");
+            //entity.HasOne(d => d.Device).WithMany(p => p.DeviceToUsers)
+            //    .HasForeignKey(d => d.DeviceId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("device_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.DeviceToUsers)
                 .HasForeignKey(d => d.UserId)

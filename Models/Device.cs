@@ -15,5 +15,4 @@ public partial class Device
 
     public virtual ICollection<Datum> Data { get; set; } = new List<Datum>();
 
-    public virtual ICollection<DeviceToUser> DeviceToUsers { get; set; } = new List<DeviceToUser>();
 }
