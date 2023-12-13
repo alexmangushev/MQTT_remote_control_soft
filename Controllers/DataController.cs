@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using mqtt_remote_server.Models;
 using Newtonsoft.Json;
+using NuGet.Protocol.Plugins;
 
 namespace mqtt_remote_server.Controllers
 {
@@ -68,13 +69,12 @@ namespace mqtt_remote_server.Controllers
                 string login = claim.Value; // get user's login from jwt token
 
                 // Get list of user's devices
-                List<User> user = _context.Users.Where(r => r.Login == login).ToList();
-                int? userid = user[0].UserId;
+                int? userid = _context.Users.Where(r => r.Login == login).ToList().FirstOrDefault().UserId;
                 List<DeviceToUser> devtouser = _context.DeviceToUsers.Include(x => x.User).Where(r => r.UserId == userid).ToList();
 
                 // return list of data beetween date.Start and date.End for all devices of this user
                 return _context.Data.Where(r => r.GetTime > date.Start && r.GetTime < date.End && r.DeviceId == devtouser[0].DeviceId).ToImmutableList();
-                
+
              }
 
             return NoContent();
@@ -97,7 +97,7 @@ namespace mqtt_remote_server.Controllers
                 return BadRequest();
         }
 
-        // GET: api/Data/login
+        // POST: api/Data/login
         // Self write
         // Get requests for authorization
         [HttpPost("login")] 

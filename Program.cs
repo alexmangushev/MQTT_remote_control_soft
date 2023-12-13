@@ -55,7 +55,7 @@ Mqtt mqtt_Connect = new Mqtt();
 await mqtt_Connect.Connect();
 await mqtt_Connect.Subscribe();
 
-RpcServer rpcServer = new RpcServer("FTPQueue");
+//RpcServer rpcServer = new RpcServer("FTPQueue");
 
 app.Run();
 

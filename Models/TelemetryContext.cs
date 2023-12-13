@@ -31,6 +31,7 @@ public partial class TelemetryContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        //optionsBuilder.UseLazyLoadingProxies();
         if (!optionsBuilder.IsConfigured) 
         {
             StreamReader strReader = new StreamReader("ConnectionDataBase.txt"); // get Reader
