@@ -64,8 +64,12 @@ namespace mqtt_client
         {
             try
             {
-                DateTime? startDate = DatePickerStart.SelectedDate.Value.ToLocalTime();
-                DateTime? endDate = DatePickerEnd.SelectedDate.Value.ToLocalTime();
+                DateTime startDate = DatePickerStart.SelectedDate.Value.ToLocalTime();
+                DateTime endDate = DatePickerEnd.SelectedDate.Value.ToLocalTime();
+
+                startDate = startDate.AddHours(0);
+                endDate = endDate.AddHours(23);
+
 
                 if (startDate <= endDate && endDate <= DateTime.Now)
                 {
