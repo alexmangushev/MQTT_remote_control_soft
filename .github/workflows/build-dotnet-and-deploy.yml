@@ -1,0 +1,42 @@
+name: "Dotnet CI"
+on:
+  push:
+    branches: ["feature/Lab7"]
+  pull_request:
+    branches: ["feature/Lab7"]
+    
+env:
+  DOTNET_VERSION: '7.0' # The .NET SDK version to use
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal ./mqtt_remote_server_test/mqtt_remote_server_test.csproj
+  deploy:
+    needs: test
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: "cluster.vstu.ru:57322"
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        script: |
+          cd mangushev
+          cd MQTT_remote_control_soft
+          git checkout feature/Lab7
+          git pull
+          podman stop backend_container
+          podman rm backend_container
+          podman rmi backend_container
+          podman build -f mqtt_remote_server/Dockerfile -t backend_container_image .
+          podman run -p 65001:80 --name backend_container -d backend_container_image

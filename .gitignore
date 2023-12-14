@@ -1,0 +1,8 @@
+ConnectionDataBase.txt
+ConnectionMQTT.txt
+
+mqtt_remote_server*/.vs
+mqtt_remote_server*/bin
+mqtt_remote_server*/obj/Docker
+mqtt_remote_server*/obj/Debug
+mqtt_remote_server*/obj/Container

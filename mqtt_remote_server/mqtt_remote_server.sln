@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mqtt_remote_server", "mqtt_remote_server.csproj", "{4C547C93-8707-4687-AA4F-7939AB71AFC5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mqtt_remote_server_test", "..\mqtt_remote_server_test\mqtt_remote_server_test.csproj", "{4D454AC6-ACA1-4CF2-96C2-4E87B040C912}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C547C93-8707-4687-AA4F-7939AB71AFC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C547C93-8707-4687-AA4F-7939AB71AFC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C547C93-8707-4687-AA4F-7939AB71AFC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C547C93-8707-4687-AA4F-7939AB71AFC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D454AC6-ACA1-4CF2-96C2-4E87B040C912}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D454AC6-ACA1-4CF2-96C2-4E87B040C912}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D454AC6-ACA1-4CF2-96C2-4E87B040C912}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D454AC6-ACA1-4CF2-96C2-4E87B040C912}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {48FE1F7C-8C91-44A3-88F2-8F63C127CBDA}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,57 @@
+version: "3.9"
+services:
+    postgres:
+        container_name: postgres_container
+        image: postgres:13.3
+        environment:
+            POSTGRES_DB: "telemetry"
+            POSTGRES_USER: "postgres"
+            POSTGRES_PASSWORD: "10102001"
+        volumes:
+        - .:/docker-entrypoint-initdb.d
+        ports:
+        - "5432:5432"
+        deploy:
+            resources:
+                limits:
+                    cpus: '1'
+                    memory: 1G
+        networks:
+            - postgres
+            
+    pgadmin:
+        container_name: pgadmin_container
+        image: dpage/pgadmin4:7.2
+        environment:
+          PGADMIN_DEFAULT_EMAIL: "habrpguser@habr.com"
+          PGADMIN_DEFAULT_PASSWORD: "pgadminpwd4habr"
+          PGADMIN_CONFIG_SERVER_MODE: "False"
+        volumes:
+            - pgadmin-data:/var/lib/pgadmin
+        ports:
+          - "5050:80"
+        restart: unless-stopped
+        deploy:
+          resources:
+            limits:
+              cpus: '0.5'
+              memory: 1G
+        networks:
+          - postgres
+          
+    backend:
+        container_name: backend_container
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+          - "5240:80"
+        networks:
+          - postgres
+          
+volumes:
+    pgadmin-data:
+    
+networks:
+    postgres:
+        driver: bridge
