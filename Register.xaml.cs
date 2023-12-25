@@ -24,9 +24,19 @@ namespace mqtt_client
     /// </summary>
     public partial class Register : Window
     {
+
+        private static Register instance;
+
         public Register()
         {
             InitializeComponent();
+        }
+
+        public static Register GetInstance()
+        {
+            if (instance == null)
+                instance = new Register();
+            return instance;
         }
 
         private void DataWindow_Closing(object sender, CancelEventArgs e)

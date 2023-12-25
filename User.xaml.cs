@@ -25,19 +25,36 @@ namespace mqtt_client
     /// </summary>
     public partial class User : Window
     {
+        private static User instance;
         private readonly Statistics statisctics;
-        private readonly ServerRequests serverRequest;
+        private ServerRequests serverRequest;
+
+        public User()
+        {
+            InitializeComponent();
+        }
         public User(string token)
         {
             statisctics = new Statistics();
-            serverRequest = new ServerRequests(token);
             InitializeComponent();
+        }
+
+        public static User GetInstance()
+        {
+            if (instance == null)
+                instance = new User();
+            return instance;
+        }
+
+        public void SetToken(string token)
+        {
+            serverRequest = new ServerRequests(token);
         }
 
         private void DataWindow_Closing(object sender, CancelEventArgs e)
         {
             e.Cancel = true;
-            System.Environment.Exit(0);
+            Hide();
         }
 
         public void SyncTable()

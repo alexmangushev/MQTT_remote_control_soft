@@ -27,10 +27,16 @@ namespace mqtt_client
     /// </summary>
     public partial class MainWindow : Window
     {
+        readonly Admin AdminWindow;
+        readonly User UserWindow;
+        readonly Register RegistrationWindow;
 
         public MainWindow()
         {
             InitializeComponent();
+            AdminWindow = new Admin();
+            UserWindow = new User();
+            RegistrationWindow = new Register();
         }
 
         private async void ButtonLoginClick(object sender, RoutedEventArgs e)
@@ -49,14 +55,15 @@ namespace mqtt_client
                 }
                 else if (authAnswer.IsAdmin == true)
                 {
-                    Admin AdminWindow = new Admin(authAnswer.JWTtoken);
+                    AdminWindow.SetToken(authAnswer.JWTtoken);
+                    AdminWindow.SyncTable();
                     this.Hide();
                     AdminWindow.ShowDialog();
                     this.Show();
                 }
                 else
                 {
-                    User UserWindow = new User(authAnswer.JWTtoken);
+                    UserWindow.SetToken(authAnswer.JWTtoken);
                     this.Hide();
                     UserWindow.ShowDialog();
                     this.Show();
@@ -70,7 +77,6 @@ namespace mqtt_client
 
         private void ButtonRegisterClick(object sender, RoutedEventArgs e)
         {
-            Register RegistrationWindow = new Register();
             this.Hide();
             RegistrationWindow.ShowDialog();
             this.Show();

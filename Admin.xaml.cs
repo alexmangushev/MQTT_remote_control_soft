@@ -28,16 +28,27 @@ namespace mqtt_client
     /// </summary>
     public partial class Admin : Window
     {
+        private static Admin instance;
         List<UserFromDB>? userFromDBs;
-        private readonly ServerRequests serverRequest;
+        private ServerRequests serverRequest;
 
-        public Admin(string token)
+        public Admin()
         {
-            serverRequest = new ServerRequests(token);
             InitializeComponent();
-            SyncTable();
         }
 
+        public static Admin GetInstance()
+        {
+            if (instance == null)
+                instance = new Admin();
+            return instance;
+        }
+
+        public void SetToken(string token)
+        {
+            serverRequest = new ServerRequests(token);
+            SyncTable();
+        }
 
         public async void SyncTable()
         {
@@ -135,7 +146,7 @@ namespace mqtt_client
         private void DataWindow_Closing(object sender, CancelEventArgs e)
         {
             e.Cancel = true;
-            System.Environment.Exit(0);
+            Hide();
         }
 
     }
