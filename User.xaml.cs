@@ -31,6 +31,7 @@ namespace mqtt_client
 
         public User()
         {
+            statisctics = new Statistics();
             InitializeComponent();
         }
         public User(string token)
